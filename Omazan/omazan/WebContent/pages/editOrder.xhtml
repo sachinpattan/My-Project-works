@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+
+<h:head>
+	<title>Page to Edit Order details</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" />
+	<link rel="stylesheet" href="../resources/css/styles.css"
+		type="text/css" media="screen" />
+</h:head>
+
+<h:body>
+
+	<ui:include src="./common/header.xhtml" />
+
+	<div class="center">
+		<!-- Main Menu -->
+		<ui:include src="./common/menu.xhtml" />
+		<!-- /Main Menu -->
+
+
+		<!-- Main Content -->
+		<div id="page">
+			<h1 class="blue">Edit Order Status</h1>
+			<div>
+				<h:form>
+					<div>
+					    <table>
+				        	<tbody>
+						          <tr> 
+						         	<th class="sort-title"><span>Order Id</span></th>
+						            <td class="sort-content"><h:outputText value="#{orderMBean.editingOrder.orderId}" /></td>
+						         </tr>
+						         <tr> 
+						         	<th class="sort-title"><span>Status</span></th>   
+						            <td class="sort-content">
+						            	<h:selectOneMenu value="#{orderMBean.editingOrder.status}">
+										   	<f:selectItem itemValue="pending" itemLabel="pending" />
+										   	<f:selectItem itemValue="completed" itemLabel="completed" />
+										   	<f:selectItem itemValue="rejected" itemLabel="rejected" />
+										</h:selectOneMenu>
+						            </td>
+						         </tr>
+						        <tr>
+									<td><h:commandButton id="submit" value="Save" action="#{orderMBean.updateOrder}" ajax="false" /></td>
+								</tr>
+					        </tbody>
+	    				</table>
+					</div>
+				</h:form>
+			</div>
+		</div>
+	</div>
+	<!-- Footer -->
+	<div id="footer">
+		<ui:include src="./common/footer.xhtml" />
+	</div>
+</h:body>
+</html>

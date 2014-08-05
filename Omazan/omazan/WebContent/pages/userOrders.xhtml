@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+<h:head>
+	<title>Orders</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" />
+	<link rel="stylesheet" href="../resources/css/styles.css"
+		type="text/css" media="screen" />
+</h:head>
+<h:body>
+	<script src="jquery.js"></script>
+	<script>
+		// Your code goes here.
+	</script>
+	<ui:include src="./common/header.xhtml" />
+	<div class="center">
+		<!-- Main Menu -->
+		<ui:include src="./common/menu.xhtml" />
+		<!-- /Main Menu -->
+
+
+		<!-- Main Content -->
+		<div id="page">
+
+			<!-- Left Side Specs -->
+			<div id="leftColumn580">
+				<h:form>
+					<h1 class="blue">
+						<h:commandLink id="edit" value="Edit Account"
+							action="/pages/editUser.xhtml" ajax="false">
+							<f:param name="flow" value="edit"></f:param>
+						</h:commandLink>
+					</h1>
+					<br />
+					 <BR /> <a
+					href="../pages/productListing.xhtml">Click here to go to
+					products listing page</a> <BR />
+					<h1 class="blue">Orders placed by you</h1>
+
+					<div class="sort-table-wrap">
+						<table class="sort-table">
+							<thead>
+								<tr>
+									<th class="sort-title"><span class="ascending">order
+											date</span></th>
+									<th class="sort-title"><span class="ascending">order
+											ID</span></th>
+									<th class="sort-title" colspan="2"><span>status</span></th>
+								</tr>
+							</thead>
+							<tbody>
+								<ui:repeat var="order" value="#{orderMBean.ordersListOfUser}"
+									varStatus="status">
+									<tr id="dataTableIndex0">
+										<td class="sort-content"><h:outputText
+												value="#{order.orderPlacedTime}" /></td>
+										<td class="sort-content"><h:outputText
+												value="#{order.orderId}" /></td>
+										<td class="sort-content"><h:outputText
+												value="#{order.status}" /></td>
+												<td><h:commandButton id="submit" value="See shipment status" action="#{shipmentMBean.getShipmentDetailsForOrderId}" ajax="false">
+												<f:param name="orderId" value="#{order.orderId}"></f:param>
+												</h:commandButton>
+												</td>
+
+									</tr>
+									
+								</ui:repeat>
+							</tbody>
+						</table>
+					</div>
+					<br />
+
+
+				</h:form>
+			</div>
+		</div>
+	</div>
+	<!-- Footer -->
+	<div id="footer">
+		<ui:include src="./common/footer.xhtml" />
+	</div>
+</h:body>
+</html>

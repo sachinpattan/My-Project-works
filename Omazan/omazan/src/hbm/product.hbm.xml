@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="com.omazan.hbm.Product" table="PRODUCT">
+   	<id name="productId" type="int" column="PRODUCT_ID" >
+   		<generator class="increment"/>
+  	</id>
+	
+	<property name="categoryId">
+    	<column name="CATEGORY_ID" />
+  	</property>
+  	
+	<property name="name">
+    	<column name="NAME" />
+  	</property>
+	<property name="description">
+		<column name="DESCRIPTION"/>
+	</property>
+	<property name="imageURL">
+    	<column name="IMAGEURL"/>
+  	</property>
+  	<property name="price">
+    	<column name="PRICE" />
+   	</property>
+   	<property name="quantity">
+    	<column name="QUANTITY"/>
+  	</property>
+ </class>
+</hibernate-mapping>

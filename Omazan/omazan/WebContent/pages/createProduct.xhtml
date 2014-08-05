@@ -1,0 +1,60 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets">
+
+
+<h:head>
+	<title>Welcome to Omazan !</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" />
+	<link rel="stylesheet" href="../resources/css/styles.css" type="text/css" media="screen"/>
+</h:head>
+
+<h:body>
+
+	<ui:include src="./common/header.xhtml" />
+
+	<div class="center">
+		<!-- Main Menu -->
+		<ui:include src="./common/menu.xhtml" />
+		<!-- /Main Menu -->
+
+
+		<!-- Main Content -->
+		<div id="page">
+			<h1 class="blue">Create Product</h1>
+			<!-- Left Side Specs -->
+			<div id="leftColumn580">
+				<h:form>  
+				     <table>
+				     	<tr>
+					     	<td><h:outputLabel for="name" value="Name:" /></td>
+					     	<td>
+					     		<h:inputText id="name" value="#{productMBean.name}"/>
+					     	</td>
+					     	<td><h:outputLabel for="description" value="Description:" /></td>
+					     	<td><h:inputText id="description" value="#{productMBean.description}"/></td>
+					     </tr>
+					     <tr>
+					     	<td><h:outputLabel for="price" value="Price:" /></td>
+					     	<td><h:inputText id="price" value="#{productMBean.price}"/></td>
+					     	
+					     	<td><h:outputLabel for="quantity" value="Quantity:" /></td> 
+					     	<td><h:inputText id="quantity" value="#{productMBean.quantity}"/> </td>
+					     </tr>
+				         <tr>
+					   		<td><h:commandButton id="submit" value="Save" action="#{productMBean.save}" ajax="false"/></td>
+					     </tr>   
+				     </table>
+				     </h:form>
+				</div>
+		</div>
+	</div>
+	<!-- Footer -->
+	<div id="footer">
+		<ui:include src="./common/footer.xhtml" />
+	</div>
+</h:body>
+</html>

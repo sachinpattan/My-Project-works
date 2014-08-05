@@ -1,0 +1,45 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+	<div id="toolbar" style="">
+		<div class="center">
+			<ul class="user">
+				<!--  <li class="username">
+					Test
+					<span>
+						<a href="">not you?</a>
+						<a href="">sign out</a>
+					</span>
+				</li> -->
+			</ul>
+			<ul class="panel">
+				<li class="myAccount"><a href="">Sign In</a></li>
+			</ul>
+
+			<ul class="panel">
+				<li class="myAccount"><a href="">Shipment Track</a></li>
+			</ul>
+			<ul class="panel">
+				<li class="myAccount"><h:form>
+						<h:commandLink value="LogOut" action="#{userMBean.logout}" />
+					</h:form></li>
+			</ul>
+
+
+		</div>
+	</div>
+	<div class="shadow"></div>
+
+	<!-- Header -->
+	<div id="header">
+		<div id="logo">
+			<a href="#"> <img src="../../resources/images/omazan-logo.jpg"
+				alt="Omazan logo"></img>
+			</a>
+		</div>
+	</div>
+	<!-- /Header -->
+
+</ui:composition>

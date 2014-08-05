@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets">
+
+
+<h:head>
+	<title>Welcome to Omazan !</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" />
+	<link rel="stylesheet" href="./resources/css/styles.css" type="text/css" media="screen"/>
+</h:head>
+
+<h:body>
+
+	<ui:include src="./common/header.xhtml" />
+
+
+<div class="center">
+	<!-- Main Menu -->
+		<ui:include src="./common/menu.xhtml" />
+	<!-- /Main Menu -->
+
+
+	<!-- Main Content -->
+	<div id="page">
+	
+	
+		<div id="leftColumn340">
+			<img src="./resources/images/promo-340x160-mw.png" /><div class="clear10"></div>
+			<img src="./resources/images/promo-340x160-db2.png" /><div class="clear10"></div>
+			<img src="./resources/images/promo-340x160-perf.png" />
+		</div>
+		<!-- /Left Side Specs -->
+			<!-- Right Content Area -->
+			<div id="rightColumn580">
+				<h1 class="blue">Welcome to Omazan</h1>
+				<p>We offer best books recommended by the scholars for 3 subjects of Distributed Software Engineering.</p>
+				<UL>
+					<LI><B>Database Management Systems</B></LI>
+					<LI><B>Middleware</B></LI>
+					<LI><B>Performance and Scalability of E-Commerce Systems</B></LI>
+				</UL>
+				<P>
+					Click on the category of books at Menu or Left Side to browse books !
+				</P>
+				
+				<BR />
+				
+				<h1 class="blue">Why you should choose Omazan ?</h1>
+				Simple !
+				<UL>
+					<LI>We deliver the books at your place at quickest possible time !</LI>
+					<LI>Unlimited amount of books !</LI>
+					<LI>Recommended books by Professors !</LI>
+				</UL>
+				<p>Customers can browse the site and simply order the books. Please login, incase you have the Omazan account. Creation of Omazan account is simple and short.
+				</p>
+				<h1 class="blue">Sign In</h1>
+				
+				<ui:include src="customerLogon.xhtml" />
+				
+			</div>
+			<!-- /Right Content Area -->
+	</div>
+	<!-- /Main Content -->
+</div>
+<!-- Footer -->
+<div id="footer">
+	<ui:include src="./common/footer.xhtml" />
+</div>
+</h:body>
+</html>

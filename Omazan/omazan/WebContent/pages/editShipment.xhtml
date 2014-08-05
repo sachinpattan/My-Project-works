@@ -1,0 +1,66 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+
+<h:head>
+	<title>Page to Edit Shipment details</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" />
+	<link rel="stylesheet" href="../resources/css/styles.css"
+		type="text/css" media="screen" />
+</h:head>
+
+<h:body>
+
+	<ui:include src="./common/header.xhtml" />
+
+	<div class="center">
+		<!-- Main Menu -->
+		<ui:include src="./common/menu.xhtml" />
+		<!-- /Main Menu -->
+
+
+		<!-- Main Content -->
+		<div id="page">
+			<h1 class="blue">Edit Shipment Status</h1>
+			<div>
+				<h:form>
+					<div>
+					    <table>
+				        	<tbody>
+						        <tr> 
+						        	<th class="sort-title"><span>Shipment Id</span></th>  
+						         	<td class="sort-content"><h:outputText value="#{shipmentMBean.editingShipment.shipmentId}" /></td>
+						        </tr>
+						         <tr> 
+						         	<th class="sort-title"><span>Order Id</span></th>
+						            <td class="sort-content"><h:outputText value="#{shipmentMBean.editingShipment.orderId}" /></td>
+						         </tr>
+						         <tr> 
+						         	<th class="sort-title"><span>Status</span></th>   
+						            <td class="sort-content">
+						            	<h:selectOneMenu value="#{shipmentMBean.editingShipment.status}">
+										   	<f:selectItem itemValue="Delievered" itemLabel="Delievered" />
+										   	<f:selectItem itemValue="In-progress" itemLabel="In-progress" />
+										   	<f:selectItem itemValue="On-hold" itemLabel="On-hold" />
+										</h:selectOneMenu>
+						            </td>
+						         </tr>
+						        <tr>
+									<td><h:commandButton id="submit" value="Save" action="#{shipmentMBean.updateShipment}" ajax="false" /></td>
+								</tr>
+					        </tbody>
+	    				</table>
+					</div>
+				</h:form>
+			</div>
+		</div>
+	</div>
+	<!-- Footer -->
+	<div id="footer">
+		<ui:include src="./common/footer.xhtml" />
+	</div>
+</h:body>
+</html>

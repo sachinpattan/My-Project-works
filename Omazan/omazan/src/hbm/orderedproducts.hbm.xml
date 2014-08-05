@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+	<class name="com.omazan.hbm.Orderedproducts" table="ORDEREDPRODUCTS">
+
+		<id name="orderedproductsId" type="int" column="ORDEREDPRODUCTS_ID">
+			<generator class="increment">
+				<param name="schema">omazan</param>
+			</generator>
+		</id>
+		<property name="orderId">
+			<column name="ORDER_ID" />
+		</property>
+		<property name="productId">
+			<column name="PRODUCT_ID" />
+		</property>
+		<property name="quantity">
+			<column name="QUANTITY" />
+		</property>
+	</class>
+</hibernate-mapping>

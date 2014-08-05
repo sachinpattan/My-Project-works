@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets">
+
+
+<h:head>
+	<title>Page to Edit user details</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" />
+	<link rel="stylesheet" href="../resources/css/styles.css" type="text/css" media="screen"/>
+</h:head>
+
+<h:body>
+
+	<ui:include src="./common/header.xhtml" />
+
+	<div class="center">
+		<!-- Main Menu -->
+		<ui:include src="./common/menu.xhtml" />
+		<!-- /Main Menu -->
+
+
+		<!-- Main Content -->
+		<div id="page">
+			<h1 class="blue">Create Omazan account</h1>
+			<!-- Left Side Specs -->
+			<div id="leftColumn580">
+				<h:form>  
+				     <table>
+				     	<tr>
+					     	<td><h:outputLabel for="title" value="Title:" /></td>
+					     	<td>
+					     		<h:selectOneMenu value="#{userMBean.title}">
+								   	<f:selectItem itemValue="Mr." itemLabel="Mr." />
+								   	<f:selectItem itemValue="Ms." itemLabel="Ms." />
+								</h:selectOneMenu>
+					     	</td>
+					     	<td><h:outputLabel for="firstName" value="First Name:" /></td>
+					     	<td><h:inputText id="firstName" value="#{userMBean.editingUser.firstName}"/></td>
+					     </tr>
+					     <tr>
+					     	<td><h:outputLabel for="lastName" value="Last Name:" /></td>
+					     	<td><h:inputText id="lastName" value="#{userMBean.editingUser.lastName}"/></td>
+					     	
+					     	<td><h:outputLabel for="Email" value="Email:" /></td> 
+					     	<td><h:inputText id="email" value="#{userMBean.editingUser.email}"/> </td>
+					     </tr>
+					     <tr>
+					       	<td><h:outputLabel for="Password" value="Password:" /></td>
+					       <td><h:inputSecret id="password"
+									value="#{userMBean.editingUser.password}" type="password" /></td>
+					        
+					        <td><h:outputLabel for="Retype password" value="Retype Password:" /></td>
+					        <td><h:inputSecret id="retypedpassword"
+									value="#{userMBean.editingUser.password}" type="password" /></td>
+					     </tr>
+				         <tr>
+					   		<td><h:commandButton id="submit" value="Save" action="#{userMBean.updateEditingUsers}" ajax="false"/></td>
+					     </tr>   
+				     </table>
+				     </h:form>
+				</div>
+		</div>
+	</div>
+	<!-- Footer -->
+	<div id="footer">
+		<ui:include src="./common/footer.xhtml" />
+	</div>
+</h:body>
+</html>

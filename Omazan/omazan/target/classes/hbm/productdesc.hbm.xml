@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="com.omazan.hbm.ProductDescription" table="PRODUCTDESC">
+   	 <id name="productId" type="int" column="PRODUCT_ID" />
+	  <property name="attrName">
+	    <column name="ATTR_NAME" />
+	  </property>
+	  <property name="attrValue">
+	    <column name="ATTR_VAL" />
+	  </property>
+ </class>
+</hibernate-mapping>

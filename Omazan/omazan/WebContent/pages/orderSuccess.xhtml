@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+
+<h:head>
+	<title>Welcome to Omazan !</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" />
+	<link rel="stylesheet" href="../resources/css/styles.css"
+		type="text/css" media="screen" />
+</h:head>
+
+<h:body>
+
+	<ui:include src="./common/header.xhtml" />
+
+	<div class="center">
+		<!-- Main Menu -->
+		<ui:include src="./common/menu.xhtml" />
+		<!-- /Main Menu -->
+
+
+		<!-- Main Content -->
+		<div id="page">
+
+
+			<div id="leftColumn340">
+				<img src="../resources/images/promo-340x160-mw.png" />
+				<div class="clear10"></div>
+				<img src="../resources/images/promo-340x160-db2.png" />
+				<div class="clear10"></div>
+				<img src="../resources/images/promo-340x160-perf.png" />
+			</div>
+			<!-- /Left Side Specs -->
+			<!-- Right Content Area -->
+			<div id="rightColumn580">
+				<h1 class="blue">Your Order was successfully Placed ! :) you
+					will be further informed about the Shipment status ASAP</h1>
+				<BR /> <a href="../pages/userOrders.xhtml">Track your Order and
+					Shipment Status here</a> <BR /> <BR /> <BR /> <a
+					href="../pages/productListing.xhtml">Click here to go to
+					products listing page</a> <BR />
+			</div>
+
+			<!-- /Right Content Area -->
+		</div>
+		<!-- /Main Content -->
+	</div>
+	<!-- Footer -->
+	<div id="footer">
+		<ui:include src="./common/footer.xhtml" />
+	</div>
+</h:body>
+</html>

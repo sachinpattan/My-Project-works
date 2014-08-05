@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets">
+
+
+<h:head>
+	<title>Welcome to Omazan !</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" />
+	<link rel="stylesheet" href="style.css" type="text/css" media="screen" />
+</h:head>
+
+<h:body>
+<div id="container">
+	<ui:include src="../pages/common/header.xhtml" />
+	
+	<!-- Start of Main Content Area -->
+  <div id="maincontent_container">
+    <div id="maincontent">
+      <div id="maincontent_top">
+       
+        <div class="box_container">
+	      <div id="userlogin">
+	        <h2><span>User Login</span></h2>
+	        <h:form>
+	          <div class="form_field"> <strong>Username</strong>
+	            <input type="text" />
+	          </div>
+	          <div class="clearthis"></div>
+	          <div class="form_field"> <strong>Password</strong>
+	            <input type="password" />
+	          </div>
+	          <div class="clearthis"></div>
+	          <div class="form_field">
+	            <h:commandButton id="submit" value="Save" action="#{userMBean.login}" ajax="false"/>
+	          </div>
+	        </h:form>
+	       </div>
+       	</div>
+       
+       
+    </div>
+  </div>
+  <!-- End of Main Content Area -->
+	<div class="clearthis">&nbsp;</div>
+	<ui:include src="../pages/common/footer.xhtml" />
+
+	</div>
+	<div class="clearthis">&nbsp;</div>
+ </div> 
+</h:body>
+</html>

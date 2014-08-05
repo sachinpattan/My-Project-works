@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+<h:head>
+	<title>PRODUCTS</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" />
+	<link rel="stylesheet" href="../resources/css/styles.css"
+		type="text/css" media="screen" />
+</h:head>
+<h:body>
+    <script src="jquery.js"></script>
+    <script>
+ 
+    // Your code goes here.
+ 
+    </script>
+	<ui:include src="./common/header.xhtml" />
+	<div class="center">
+		<!-- Main Menu -->
+		<ui:include src="./common/menu.xhtml" />
+		<!-- /Main Menu -->
+
+
+		<!-- Main Content -->
+		<div id="page">
+
+			<!-- Left Side Specs -->
+			<div id="leftColumn580">
+				<h:form>
+					<h1 class="blue">
+						<h:commandLink id="edit" value="Edit Account"
+							action="/pages/editUser.xhtml" ajax="false">
+							<f:param name="flow" value="edit"></f:param>
+						</h:commandLink>
+					</h1>
+					
+					<h1 class="blue">
+						<h:commandLink value="Shipment Tracking"
+							action="/pages/userOrders.xhtml" ajax="false">
+						</h:commandLink>
+					</h1>
+					<br />
+					<h1 class="blue">Order : Our Products!</h1>	
+					
+					<div class="sort-table-wrap" >
+					    <table class="sort-table">
+					        <thead>
+						        <tr>
+						            <th class="sort-title"><span>Image</span></th>
+					            	<th class="sort-title"><span class="ascending">Product Name</span></th>
+					            	<th class="sort-title"><span>Description</span></th>
+					            	<th class="sort-title"><span>Quantity</span></th>
+					            	<th class="sort-title"><span>Price</span></th>
+					            	<th class="sort-title"><span>Order</span></th>
+					        	</tr>
+				        	</thead>
+				        	<tbody>
+				        		<ui:repeat var="product" value="#{userMBean.products}" varStatus="status">
+						        	<tr id="dataTableIndex0">
+						        		<td class="sort-content"><h:graphicImage library="images" name="product.jpg" /></td>
+							            <td class="sort-content"><h:outputText value="#{product.name}" /></td>
+							            <td class="sort-content"><h:outputText value="#{product.description}" /></td>
+							            <td class="sort-content"><h:outputText value="#{product.quantity}" /></td>
+							            <td class="sort-content"><h:outputText value="#{product.price}" /></td>
+							            <td class="sort-content"><h:selectBooleanCheckbox value="#{product.productOrdered}" /></td>
+							        </tr>
+							    </ui:repeat>
+					        </tbody>
+	    				</table>
+					</div>
+					<br />
+					<h1 class="blue">
+							<h:commandLink id="submit" value="Place Order"
+								action="/pages/placeOrder.xhtml" ajax="false">
+								
+							</h:commandLink>
+				</h1>
+
+				</h:form>
+			</div>
+		</div>
+	</div>
+	<!-- Footer -->
+	<div id="footer">
+		<ui:include src="./common/footer.xhtml" />
+	</div>
+</h:body>
+</html>

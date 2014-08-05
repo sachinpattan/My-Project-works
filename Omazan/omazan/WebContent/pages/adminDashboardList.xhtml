@@ -1,0 +1,214 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+<h:head>
+	<title>Admin Dashboard</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" />
+	<link rel="stylesheet" href="../resources/css/styles.css"
+		type="text/css" media="screen" />
+</h:head>
+
+<h:body>
+	<ui:include src="../pages/common/header.xhtml" />
+
+	<div class="center">
+		<ui:include src="../pages/common/menu.xhtml" />
+
+		<div id="page">
+			<div id="leftColumn200">
+				<ul>
+					<li><h:form>
+							<h:commandLink action="#{userMBean.getAllProducts}"
+								value="Products" />
+						</h:form></li>
+					<li><h:form>
+							<h:commandLink action="#{orderMBean.getAllOrders}"
+								value="Customer Accounts" />
+						</h:form></li>
+					<li><h:form>
+							<h:commandLink action="#{orderMBean.getAllOrders}" value="Orders" />
+						</h:form></li>
+					<li><h:form>
+							<h:commandLink
+								action="#{shipmentMBean.getNonDelieveredShipments}"
+								value="Shipments" />
+						</h:form></li>
+				</ul>
+			</div>
+
+			<div class="account">
+				<c:if test="#{not empty orderMBean.ordersList}">
+					<h1 class="blue">Orders</h1>
+					<div class="sort-table-wrap" id="order-history">
+						<table class="sort-table">
+							<thead>
+								<tr>
+									<th class="sort-title"><span>order number</span></th>
+									<th class="sort-title"><span class="ascending">order
+											date</span></th>
+									<th class="sort-title" colspan="2"><span>status</span></th>
+								</tr>
+							</thead>
+							<tbody>
+								<ui:repeat var="o" value="#{orderMBean.ordersList}"
+									varStatus="status">
+									<tr id="dataTableIndex0">
+										<td class="sort-content"><a
+											href="account_order_details.xhtml"><h:outputText
+													value="#{o.orderId}" /></a></td>
+										<td class="sort-content">11/02/2012</td>
+										<td class="sort-content"><h:outputText
+												value="#{o.status}" /></td>
+										<td class="sort-content"><h:form>
+												<h:commandLink id="submit" value="Edit Status"
+													action="#{orderMBean.loadOrder}" ajax="false">
+													<f:param name="orderId" value="#{o.orderId}"></f:param>
+												</h:commandLink>
+											</h:form></td>
+									</tr>
+								</ui:repeat>
+							</tbody>
+						</table>
+					</div>
+				</c:if>
+
+				<c:if test="#{not empty productMBean.products}">
+					<h1 class="blue">Products</h1>
+					<div class="sort-table-wrap">
+						<table class="sort-table">
+
+							<tr>
+								<th class="sort-title"><span>Image</span></th>
+								<th class="sort-title"><span class="ascending">Product
+										Name</span></th>
+								<th class="sort-title"><span>Description</span></th>
+								<th class="sort-title"><span>Quantity</span></th>
+								<th class="sort-title"><span>Price</span></th>
+								<th class="sort-title"><span>Action</span></th>
+							</tr>
+							<tbody>
+								<ui:repeat var="product" value="#{productMBean.products}"
+									varStatus="status">
+									<tr id="dataTableIndex0">
+										<td class="sort-content"><h:graphicImage library="images"
+												name="product.jpg" /></td>
+										<td class="sort-content"><h:outputText
+												value="#{product.name}" /></td>
+										<td class="sort-content"><h:outputText
+												value="#{product.description}" /></td>
+										<td class="sort-content"><h:outputText
+												value="#{product.quantity}" /></td>
+										<td class="sort-content"><h:outputText
+												value="#{product.price}" /></td>
+										<td class="sort-content"><h:form>
+												<h:commandLink id="submit" value="Edit Product"
+													action="#{productMBean.loadProduct}" ajax="false">
+													<f:param name="flow" value="edit"></f:param>
+													<f:param name="productId" value="#{product.productId}"></f:param>
+												</h:commandLink>
+											</h:form></td>
+									</tr>
+								</ui:repeat>
+							</tbody>
+						</table>
+					</div>
+				</c:if>
+
+
+				<c:if test="#{not empty shipmentMBean.nonDeliveredShipments}">
+					<h1 class="blue">Shipments</h1>
+					<div class="sort-table-wrap">
+						<table class="sort-table">
+
+							<tr>
+								<th class="sort-title"><span>Shipment Id</span></th>
+								<th class="sort-title"><span>Order Id</span></th>
+								<th class="sort-title"><span>Status</span></th>
+								<th class="sort-title"><span>Position</span></th>
+								<th class="sort-title"><span>Exception message</span></th>
+								<th class="sort-title"><span>Update Status</span></th>
+							</tr>
+							<tbody>
+								<ui:repeat var="shipment"
+									value="#{shipmentMBean.nonDeliveredShipments}"
+									varStatus="status">
+									<tr id="dataTableIndex0">
+										<td class="sort-content"><h:outputText
+												value="#{shipment.shipmentId}" /></td>
+										<td class="sort-content"><h:outputText
+												value="#{shipment.orderId}" /></td>
+										<td class="sort-content"><h:outputText
+												value="#{shipment.status}" /></td>
+										<td class="sort-content"><h:outputText
+												value="#{shipment.shipmentPosition}" /></td>
+										<td class="sort-content"><h:outputText
+												value="#{shipment.exceptionMessage}" /></td>
+										<td class="sort-content"><h:form>
+												<h:commandLink id="submit" value="Edit Status"
+													action="#{shipmentMBean.loadShipment}" ajax="false">
+													<f:param name="flow" value="edit"></f:param>
+													<f:param name="shipmentId" value="#{shipment.shipmentId}"></f:param>
+												</h:commandLink>
+											</h:form></td>
+									</tr>
+								</ui:repeat>
+							</tbody>
+						</table>
+					</div>
+				</c:if>
+				<c:if test="#{not empty userMBean.userList}">
+					<h1 class="blue">Users</h1>
+					<div class="sort-table-wrap">
+						<table class="sort-table">
+
+							<tr>
+								<th class="sort-title"><span>User Id</span></th>
+								<th class="sort-title"><span>User first name</span></th>
+								<th class="sort-title"><span>User Last name</span></th>
+								<th class="sort-title"><span>User email</span></th>
+								<th class="sort-title"><span>User password</span></th>
+								<th class="sort-title"><span>User mobile no</span></th>
+							</tr>
+							<tbody>
+								<ui:repeat var="user" value="#{userMBean.userList}"
+									varStatus="status">
+									<tr id="dataTableIndex0">
+										<td class="sort-content"><h:outputText
+												value="#{user.userId}" /></td>
+										<td class="sort-content"><h:outputText
+												value="#{user.firstName}" /></td>
+										<td class="sort-content"><h:outputText
+												value="#{user.lastName}" /></td>
+										<td class="sort-content"><h:outputText
+												value="#{user.email}" /></td>
+										<td class="sort-content"><h:outputText
+												value="#{user.password}" /></td>
+
+										<td class="sort-content"><h:outputText
+												value="#{user.mobile}" /></td>
+										<td class="sort-content"><h:form>
+												<h:commandLink id="submit" value="Edit User"
+													action="#{userMBean.loadUser}" ajax="false">
+													<f:param name="flow" value="edit"></f:param>
+													<f:param name="userId" value="#{user.userId}"></f:param>
+												</h:commandLink>
+											</h:form></td>
+									</tr>
+								</ui:repeat>
+							</tbody>
+						</table>
+					</div>
+				</c:if>
+
+			</div>
+		</div>
+	</div>
+	<div id="footer">
+		<ui:include src="../pages/common/footer.xhtml" />
+	</div>
+</h:body>
+</html>

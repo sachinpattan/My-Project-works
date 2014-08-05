@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="com.omazan.hbm.Order" table="ORDER" schema = "omazan">
+   <id name="orderId" type="int" column="ORDER_ID" >
+   	<generator class="increment">
+   		<param name="schema">omazan</param>
+	</generator>
+    </id>
+  	<property name="userId">
+    	<column name="USER_ID" />
+  	</property>
+  	<property name="status">
+    	<column name="STATUS"/>
+  	</property>
+  	<property name="addressId">
+    	<column name="ADDRESS_ID" />
+  	</property>
+   	<property name="orderTotal">
+    	<column name="ORDERTOTAL" />
+  	</property>
+  	<property name="orderPlacedTime">
+    	<column name="ORDERPLACEDTIME" />
+  	</property>
+  </class>
+</hibernate-mapping>

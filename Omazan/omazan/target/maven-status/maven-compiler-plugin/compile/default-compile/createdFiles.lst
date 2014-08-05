@@ -1,0 +1,15 @@
+com\omazan\bean\SaveAdmin.class
+com\omazan\bean\ProductManagedBean.class
+com\omazan\bean\ShipmentManagedBean.class
+com\omazan\hbm\User.class
+com\omazan\bean\Userlisting.class
+com\omazan\hbm\Shipment.class
+com\omazan\hbm\ProductDescription.class
+com\omazan\util\HibernateUtil.class
+com\omazan\util\PasswordEncryption.class
+com\omazan\hbm\Product.class
+com\omazan\hbm\Address.class
+com\omazan\bean\OrderManagedBean.class
+com\omazan\hbm\Order.class
+com\omazan\bean\UserManagedBean.class
+com\omazan\hbm\Orderedproducts.class

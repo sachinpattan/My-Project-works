@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="com.omazan.hbm.Address" table="ADDRESS" schema = "omazan">
+   <id name="addressId" type="int" column="ADDRESS_ID" >
+   	<generator class="increment">
+    	<param name="schema">omazan</param>
+	</generator>
+    </id>
+    <property name="userId">
+    	<column name="USER_ID" />
+  	</property>
+  	<property name="street">
+    	<column name="STREET" />
+  	</property>
+  	<property name="houseNo">
+    	<column name="HOUSENO"/>
+  	</property>
+  	<property name="city">
+    	<column name="CITY"/>
+  	</property>
+  	<property name="state">
+    	<column name="STATE"/>
+  	</property>
+  	<property name="zip">
+    	<column name="ZIP"/>
+  	</property>
+  	<property name="addressType">
+    	<column name="ADDRESSTYPE"/>
+  	</property>
+  </class>
+</hibernate-mapping>

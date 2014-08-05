@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head>
+	<title>Welcome to Omazan !</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" />
+	<link rel="stylesheet" href="../resources/css/styles.css" type="text/css" media="screen"/>
+</h:head>
+
+<h:body>
+	
+	<ui:include src="../pages/common/header.xhtml" />
+	
+	<div class="center">
+		<ui:include src="../pages/common/menu.xhtml" />
+		
+		<div id="page">
+			<div id="leftColumn200">
+				<ul>
+					<li>					
+						<h:form>
+							<h:commandLink action="#{userMBean.getAllProducts}" value="Products" />
+			            </h:form>
+					</li>
+					<li>					
+						<h:form>
+							<h:commandLink action="#{userMBean.getAllUsers}" value="Customer Accounts" />
+			            </h:form>
+					</li>
+					<li>					
+						<h:form>
+							<h:commandLink action="#{orderMBean.getAllOrders}" value="Orders" />
+			            </h:form>
+					</li>
+					<li><a href="#" />Shipments</li>
+				</ul>
+			</div>
+			<div id="leftColumn580">
+				<TABLE>
+					<tr>
+						<TD>
+							<h:form>
+								<h:commandLink action="#{userMBean.getAllProducts}" value="Update Product" />
+				            </h:form>
+						</TD>
+						<TD>
+							<h:form>
+								<h:commandLink action="createProduct.xhtml" value="Create Product" />
+				            </h:form>
+						</TD>
+					</tr>
+					
+					<tr>
+						<TD>
+							<h:form>
+								<h:commandLink action="#{orderMBean.getAllOrders}" value="Show Orders" />
+				            </h:form>
+						</TD>
+						<TD>
+							<h:form>
+								<h:commandLink action="registration.xhtml" value="Create a User" />
+				            </h:form>
+						</TD>
+					</tr>
+					
+					<tr>
+						<TD>
+							<h:form>
+								<h:commandLink action="#{shipmentMBean.getNonDelieveredShipments}" value="Update Shipment Status" />
+				            </h:form>
+						</TD>
+						<TD>
+							
+						</TD>
+					</tr>
+					
+					
+					
+				</TABLE>
+			</div>
+		</div>
+	</div>
+	
+	<div id="footer">
+		<ui:include src="../pages/common/footer.xhtml" />
+	</div>
+</h:body>
+</html>
