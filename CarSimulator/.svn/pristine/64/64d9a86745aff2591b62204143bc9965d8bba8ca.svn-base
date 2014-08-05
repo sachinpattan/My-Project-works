@@ -1,0 +1,34 @@
+package de.tudarmstadt.kom.carsimulator.xml.route;
+
+
+public class KoordinatesWaypoint implements Waypoint {
+	private float _longitude;
+	private float _latitude;
+	
+	public KoordinatesWaypoint(float pLongitude, float pLatitude) {
+		_longitude = pLongitude;
+		_latitude = pLatitude;
+	}
+
+	public float getLongitude() {
+		return _longitude;
+	}
+
+	public void setLongitude(float pLongitude) {
+		_longitude = pLongitude;
+	}
+
+	public float getLatitude() {
+		return _latitude;
+	}
+
+	public void setLatitude(float pLatitude) {
+		_latitude = pLatitude;
+	}
+
+	@Override
+	public String getGoogleConformRepresentation() {
+		return _longitude + "," + _latitude;
+	}
+
+}

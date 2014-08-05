@@ -1,0 +1,155 @@
+package de.tudarmstadt.kom.carsimulator;
+
+import android.app.Activity;
+import android.app.Fragment;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Bundle;
+import android.os.RemoteException;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+import de.tudarmstadt.kom.carsimulator.xml.route.Route;
+import de.tudarmstadt.kom.carsimulator.xml.route.StringWaypoint;
+import de.tudarmstadt.kom.obd.captureingUtilities.OBDDataContainer;
+
+public class SimulationControlActivity extends Activity {
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_simulation_control);
+
+		if (savedInstanceState == null) {
+			getFragmentManager().beginTransaction()
+			.add(R.id.container, new PlaceholderFragment()).commit();
+		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.simulation_control, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		if (id == R.id.action_settings) {
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	/**
+	 * A placeholder fragment containing a simple view.
+	 */
+	public static class PlaceholderFragment extends Fragment {
+
+		public PlaceholderFragment() {
+		}
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			View rootView = inflater.inflate(
+					R.layout.fragment_simulation_control, container, false);
+			return rootView;
+		}
+	}
+
+	public void simulate(View view) {
+		OBDDataContainer container = OBDDataContainer.getOnlyInstance();
+		if (container.getSpeedLimits().size() == 0) {
+			Toast.makeText(this, "There are no data recorded. Please record data via the menu button.", Toast.LENGTH_SHORT).show();
+			return ;
+		}
+		if(!isNetworkAvailable()) {
+			Toast.makeText(this, "There is no internet connection! \nThis app needs internet connection.", Toast.LENGTH_SHORT).show();
+			return ;
+		}
+		final Activity currentActivity = this;
+		final SimulationEngineAPI simulationEngine = CarSimulatorMain.getConnection().getApi();
+		final Route route = new Route();
+		EditText fromEditText = (EditText) findViewById(R.id.from);
+		EditText toEditText = (EditText) findViewById(R.id.to);
+		route.getWaypoint().add(new StringWaypoint(fromEditText.getText().toString()));
+		route.getWaypoint().add(new StringWaypoint(toEditText.getText().toString()));
+		Thread thread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+
+					if (simulationEngine.setRoute(route)) {
+						simulationEngine.startSimulation();
+						currentActivity.runOnUiThread(new Runnable() {
+
+							@Override
+							public void run() {
+								Toast.makeText(currentActivity, "The app is now simulating sensor data.", Toast.LENGTH_SHORT).show();				
+							}
+						});
+					} else {
+						currentActivity.runOnUiThread(new Runnable() {
+
+							@Override
+							public void run() {
+								Toast.makeText(currentActivity, "The route you have entered could not be executed.", Toast.LENGTH_SHORT).show();						
+							}
+						});
+					}
+				} catch (RemoteException e) {
+
+				}
+			}
+		});
+		thread.start();
+	}
+
+	public void stopSimulation(View view) {
+		final SimulationEngineAPI simulationEngine = CarSimulatorMain.getConnection().getApi();
+		try {
+			simulationEngine.endSimulation();
+		} catch (RemoteException e) {
+
+		}
+		Toast.makeText(this, "The current simulation is stopped.", Toast.LENGTH_SHORT).show();						
+	}
+
+	public void pause(View view) {
+		final SimulationEngineAPI simulationEngine = CarSimulatorMain.getConnection().getApi();
+		try {
+
+			simulationEngine.pauseSimulation();
+			Button button = (Button) view.findViewById(R.id.btnPause);
+			if (simulationEngine.isPaused()) {
+				button.setText("Resume");
+				Toast.makeText(this, "The current simulation is paused.", Toast.LENGTH_SHORT).show();
+			} else {
+				button.setText("Pause");
+				Toast.makeText(this, "The current simulation is resumed.", Toast.LENGTH_SHORT).show();
+			}
+		} catch (RemoteException e) {
+
+		}
+	}
+
+	private boolean isNetworkAvailable() {
+		ConnectivityManager connectivityManager 
+		= (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+		return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+	}
+}

@@ -1,0 +1,7 @@
+package de.tudarmstadt.kom.carsimulator.simulation;
+
+public class SimulationEngineFactory {
+//	public static SimulationEngine getSimulationEngine() {
+//		return ExtendedSimulationEngine.getInstance();
+//	}
+}

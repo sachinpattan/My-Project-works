@@ -1,0 +1,95 @@
+package de.tudarmstadt.kom.carsimulator.simulation;
+
+import java.util.List;
+import de.tudarmstadt.kom.carsimulator.speed.SpeedDataRecord;
+import de.tudarmstadt.kom.carsimulator.util.GoogleAPIUtility;
+import de.tudarmstadt.kom.carsimulator.xml.route.Route;
+import de.tudarmstadt.kom.carsimulator.xml.route.KoordinatesWaypoint;
+
+public class StandardSimulationEngine implements SimulationEngine, Runnable {
+	private volatile long _startTimestamp;
+	private Thread _simulationThread;
+	private volatile boolean _paused = true;
+	private List<SpeedDataRecord> _route;
+	private static StandardSimulationEngine _onlyInstance = new StandardSimulationEngine();
+	
+	//Auxiliary structures
+	private int activeElement = 0;
+	private long activeElementTimestamp = 0;
+	
+	private StandardSimulationEngine() {
+		_simulationThread = new Thread(this);
+		_simulationThread.start();
+	}
+	
+	public static StandardSimulationEngine getInstance() {
+		return _onlyInstance;
+	}
+	
+	@Override
+	public KoordinatesWaypoint getCurrentPosition() {
+		return null;
+	}
+
+	@Override
+	public int getCurrentSpeed() {
+		return _route.get(activeElement).getSpeedLimit();
+	}
+
+	@Override
+	public void startSimulation() {
+		_startTimestamp = System.currentTimeMillis();
+		activeElementTimestamp = _startTimestamp;
+		_paused = false;
+	}
+
+	@Override
+	public void pauseSimulation() {
+		_paused = true;
+	}
+
+	@Override
+	public void endSimulation() {
+		_startTimestamp = 0;
+		_paused = true;
+	}
+
+	@Override
+	public void setRoute(Route pRoute) {
+		endSimulation();
+		_route = GoogleAPIUtility.getRoute(pRoute).getSpeedDataRecords();
+		startSimulation();
+	}
+
+	@Override
+	public void run() {
+		long sleepInterval = 500;
+		while (true) {
+			if (!_paused) {
+				while (activeElementTimestamp - _startTimestamp > _route.get(activeElement).getDuration()) {
+					System.out.println("\t" + (activeElementTimestamp - _startTimestamp));
+					_startTimestamp += _route.get(activeElement).getDuration();
+					activeElement++;
+					if (activeElement >= _route.size()) {
+						activeElement -= _route.size();
+						System.out.println("Start");
+					}
+				}
+			} else {
+				_startTimestamp += sleepInterval;
+			}
+			activeElementTimestamp += sleepInterval;
+			try {
+				Thread.sleep(sleepInterval);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@Override
+	public boolean isPaused() {
+		return _paused;
+	}
+
+}

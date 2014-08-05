@@ -1,0 +1,114 @@
+package de.tudarmstadt.kom.carsimulator;
+
+import android.app.TabActivity;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.os.Bundle;
+import android.support.v4.view.ViewPager;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.TabHost;
+import android.widget.TabHost.TabSpec;
+import de.tudarmstadt.kom.carsimulator.simulation.SimulationEngine;
+import de.tudarmstadt.kom.carsimulator.simulation.SimulationEngineServiceConnection;
+
+@SuppressWarnings("deprecation")
+public class CarSimulatorMain extends TabActivity {
+	private static SimulationEngineServiceConnection _connection;
+	
+	/**
+	 * The {@link android.support.v4.view.PagerAdapter} that will provide
+	 * fragments for each of the sections. We use a {@link FragmentPagerAdapter}
+	 * derivative, which will keep every loaded fragment in memory. If this
+	 * becomes too memory intensive, it may be best to switch to a
+	 * {@link android.support.v13.app.FragmentStatePagerAdapter}.
+	 */
+	// SectionsPagerAdapter mSectionsPagerAdapter;
+
+	/**
+	 * The {@link ViewPager} that will host the section contents.
+	 */
+	ViewPager mViewPager;
+
+	private Intent _service;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		_service = new Intent(SimulationEngine.class.getName());
+		startService(_service);
+//		intent.setAction("de.tudarmstadt.kom.carsimulator.simulation.ExtendedSimulationEngine");
+		_connection = new SimulationEngineServiceConnection();
+		getApplicationContext().bindService(_service, _connection, BIND_AUTO_CREATE);
+		
+		setContentView(R.layout.fragment_car_simulator_main);
+		Resources ressources = getResources(); 
+		TabHost tabHost = getTabHost(); 
+		
+		Intent intentSimulationControl = new Intent().setClass(this, SimulationControlActivity.class);
+		TabSpec tabSpecSimulationControl = tabHost
+			.newTabSpec("SimualtionControl")
+			.setIndicator("", ressources.getDrawable(R.drawable.pen))
+			.setContent(intentSimulationControl);
+
+		Intent intentSensorData = new Intent().setClass(this, SensorDataActivity.class);
+		TabSpec tabSpcSensorData = tabHost
+			.newTabSpec("SensorData")
+			.setIndicator("", ressources.getDrawable(R.drawable.sensor))
+			.setContent(intentSensorData);
+		
+		Intent intentGpsCarPosition = new Intent().setClass(this, GpsCarPositionActivity.class);
+		TabSpec tabSpecGpsCarPostion = tabHost
+			.newTabSpec("Maps")
+			.setIndicator("", ressources.getDrawable(R.drawable.maps))
+			.setContent(intentGpsCarPosition);
+		
+		
+		// add all tabs 
+		tabHost.addTab(tabSpecSimulationControl);
+		tabHost.addTab(tabSpcSensorData);
+		tabHost.addTab(tabSpecGpsCarPostion);
+		
+		tabHost.setCurrentTab(0);
+	}
+	
+	public static SimulationEngineServiceConnection getConnection() {
+		return _connection;
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.car_simulator_main, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		switch (item.getItemId()) {
+		case R.id.capture:
+			startCapture();
+			break;
+
+		default:
+			break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+//		unbindService(_connection);
+//		stopService(_service);
+	}
+	
+	public void startCapture() {
+		startActivity(new Intent(getApplicationContext(), CapturingActivity.class));
+	}
+
+}

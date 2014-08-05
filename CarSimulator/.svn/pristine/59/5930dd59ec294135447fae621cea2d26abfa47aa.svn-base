@@ -1,0 +1,107 @@
+package de.tudarmstadt.kom.obd.captureingUtilities;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persister;
+
+import android.os.Environment;
+import android.util.Log;
+
+public class OBDDataContainer {
+	private HashMap<Integer, OBDDataRecord> _records;
+	private String _fileName = "CarSensorData.xml";
+
+	private volatile static OBDDataContainer _onlyInstance = new OBDDataContainer();
+
+	private OBDDataContainer() {
+		_records = new HashMap<>();
+		loadRecords();
+	}
+
+	public static OBDDataContainer getOnlyInstance() {
+		return _onlyInstance;
+	}
+
+	public void addRecord(int pSpeedLimit, String pPID, double pData) {
+		if (_records.containsKey(pSpeedLimit)) {
+			_records.get(pSpeedLimit).getPidData().put(pPID, pData);
+		} else {
+			OBDDataRecord dataRecords = new OBDDataRecord();
+			dataRecords.getPidData().put(pPID, pData);
+			_records.put(pSpeedLimit, dataRecords);
+		}
+	}
+
+	public OBDDataRecord getRecords(int pSpeedLimit) {
+		if (_records.containsKey(pSpeedLimit)) {
+			return _records.get(pSpeedLimit);
+		} else {
+			return new OBDDataRecord();
+		}
+	}
+
+	public void loadRecords() {
+		Serializer serializer = new Persister();
+		String path = Environment.getExternalStorageDirectory()
+				.getAbsolutePath() + "/" + _fileName;
+		Log.d("obd", "Reading file " + path);
+		File target = new File(path);
+		if (target.exists()) {
+			DataRecords records;
+			try {
+				records = serializer.read(DataRecords.class, target);
+				for (DataRecord dataRecord : records.getRecords()) {
+					int speed = dataRecord.getSpeed();
+					OBDDataRecord obdDataRecord = new OBDDataRecord();
+//					List<OBDDataRecord> pids = new ArrayList<>();
+					for (Pid pid : dataRecord.getPids()) {
+						obdDataRecord.getPidData().put(pid.getId(), pid.getValue());
+//						pids.add(new OBDDataRecord(pid.getId(), pid.getValue()));
+					}
+					_records.put(speed, obdDataRecord);
+				}
+			} catch (Exception e) {
+				Log.e("obd", "Error reading file", e);
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public List<Integer> getSpeedLimits() {
+		return new ArrayList<>(_records.keySet());
+	}
+	
+	public boolean saveRecords() {
+		Serializer serializer = new Persister();
+		String path = Environment.getExternalStorageDirectory()
+				.getAbsolutePath() + "/" + _fileName;
+		Log.d("obd", "Writing file to " + path);
+		File target = new File(path);
+		DataRecords records = new DataRecords();
+		for (Integer speed : _records.keySet()) {
+			DataRecord dataRecord = new DataRecord();
+			OBDDataRecord obdDataRecords = _records.get(speed);
+			List<Pid> pids = new ArrayList<Pid>();
+			for (String id : obdDataRecords.getPidData().keySet()) {
+				Pid pid = new Pid();
+				pid.setId(id);
+				pid.setValue(obdDataRecords.getPIDValue(id));
+				pids.add(pid);
+			}
+			dataRecord.setSpeed(speed);
+			dataRecord.setPids(pids);
+			records.getRecords().add(dataRecord);
+		}
+		try {
+			serializer.write(records, target);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+}

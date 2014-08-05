@@ -1,0 +1,5 @@
+package de.tudarmstadt.kom.carsimulator.xml.route;
+
+public interface Waypoint {
+	String getGoogleConformRepresentation();
+}

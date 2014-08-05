@@ -1,0 +1,114 @@
+package de.tudarmstadt.kom.obd;
+
+import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import android.bluetooth.BluetoothSocket;
+import android.util.Log;
+
+class BTConnection {
+	
+	private BluetoothSocket socket;
+	private int sleepTime = 300;
+	private CountDownLatch latch;
+	private String recData;
+	
+	public BTConnection(BluetoothSocket socket){
+		this.socket = socket;
+	}
+
+//	public String requestData(String command) throws IOException, InterruptedException{
+//		String Data = "";
+//		command = "01" + command;
+//		command += "\r";
+//		socket.getOutputStream().write(command.getBytes());
+//		socket.getOutputStream().flush();
+//		Thread.sleep(sleepTime);
+//		
+//		byte b = 0;
+//		StringBuilder res = new StringBuilder();
+//
+//		while ((char) (b = (byte) socket.getInputStream().read()) != '>'){
+//			if ((char) b != ' ')
+//				res.append((char) b);
+//		}
+//
+//		Data = res.toString().trim();
+//		
+//		Data = Data.replaceAll("\n", "");
+//		if(Data.contains("41")){
+//			Data= Data.substring(Data.indexOf("41")+2);
+//		}
+//		return Data;
+//		
+//	}
+	
+	public String requestData(String command) throws IOException, InterruptedException{
+		
+		String Data = "";
+//		command = "01" + command;
+		command += "\r";
+		socket.getOutputStream().write(command.getBytes());
+		socket.getOutputStream().flush();
+		Thread.sleep(sleepTime);
+		
+		byte b = 0;
+		StringBuilder res = new StringBuilder();
+
+		while ((char) (b = (byte) socket.getInputStream().read()) != '>'){
+			if ((char) b != ' ')
+				res.append((char) b);
+		}
+
+		Data = res.toString().trim();
+		
+		Log.d("obd", "data: " + Data);
+		
+		Data = Data.replaceAll("\n", "");
+		if(Data.contains("41")){
+			Data= Data.substring(Data.indexOf("41")+2);
+		}
+		return Data;
+		
+//		command = "01" + command;
+//		command += "\r";
+//		socket.getOutputStream().write(command.getBytes());
+//		socket.getOutputStream().flush();
+//
+//		latch = new CountDownLatch(1);
+//		
+//		new Thread(new Runnable() {
+//			
+//			@Override
+//			public void run() {
+//
+//				byte b = 0;
+//				StringBuilder res = new StringBuilder();
+//
+//				try {
+//					while ((char) (b = (byte) socket.getInputStream().read()) != '>'){
+//						if ((char) b != ' ')
+//							res.append((char) b);
+//					}
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
+//				recData = res.toString().trim();
+//				latch.countDown();
+//			}
+//		}).start();
+//
+//		latch.await(100, TimeUnit.SECONDS);
+//		String Data = recData;
+//		Log.d("obd", "data: " + Data);
+//		
+//		Data = Data.replaceAll("\n", "");
+//		if(Data.contains("41")){
+//			Data= Data.substring(Data.indexOf("41")+2);
+//		}
+//		return Data;
+		
+	}
+	
+}

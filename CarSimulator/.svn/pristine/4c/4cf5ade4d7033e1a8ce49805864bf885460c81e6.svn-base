@@ -1,0 +1,24 @@
+package de.tudarmstadt.kom.carsimulator.xml.route;
+
+
+public class StringWaypoint implements Waypoint {
+	private String _location;
+	
+	public StringWaypoint(String pLocation) {
+		_location = pLocation;
+	}
+	
+	public String getLocation() {
+		return _location;
+	}
+	
+	public void setLocation(String pLocation) {
+		_location = pLocation;
+	}
+
+	@Override
+	public String getGoogleConformRepresentation() {
+		return _location;
+	}
+
+}

@@ -1,0 +1,298 @@
+package de.tudarmstadt.kom.carsimulator.simulation;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import android.app.Service;
+import android.content.Intent;
+import android.os.IBinder;
+import android.util.Log;
+import de.tudarmstadt.kom.carsimulator.SimulationEngineAPI;
+import de.tudarmstadt.kom.carsimulator.speed.SpeedDataRecord;
+import de.tudarmstadt.kom.carsimulator.util.GoogleAPIUtility;
+import de.tudarmstadt.kom.carsimulator.xml.route.KoordinatesWaypoint;
+import de.tudarmstadt.kom.carsimulator.xml.route.Route;
+import de.tudarmstadt.kom.obd.captureingUtilities.OBDDataContainer;
+import de.tudarmstadt.kom.obd.captureingUtilities.OBDDataRecord;
+
+public class ExtendedSimulationEngine extends Service implements Runnable {
+	private volatile long _startTimestamp;
+	private Thread _simulationThread;
+	private volatile boolean _paused = true;
+	private volatile boolean _started = false;
+	private volatile boolean _running = true;
+	private List<SpeedDataRecord> _route;
+	private static ExtendedSimulationEngine _onlyInstance = new ExtendedSimulationEngine();
+
+	//Auxiliary structures
+	private int _activeElement = 0;
+	private long _activeElementTimestamp = 0;
+	private List<KoordinatesWaypoint> decodePoints;
+	private List<KoordinatesWaypoint> decodePointsNext;
+	private double _totalLength = 0.0;
+
+	private List<Integer> _speedLimits;
+	private OBDDataContainer _obdDataContainer;
+
+	@Override
+	public void onCreate() {
+		if (_simulationThread == null) {
+			synchronized (ExtendedSimulationEngine.class) {
+				if (_simulationThread == null) {
+					_simulationThread = new Thread(this);
+					_simulationThread.start();
+				}
+				_obdDataContainer = OBDDataContainer.getOnlyInstance();
+				_speedLimits = _obdDataContainer.getSpeedLimits();
+			}
+		}
+		Log.d("obd", "Service has startet");
+	}
+
+	@Override
+	public IBinder onBind(Intent pIntent) {
+		Log.d("obd", "Classname: " + ExtendedSimulationEngine.class.getName() + " parameter: " + pIntent.getAction());
+		if (ExtendedSimulationEngine.class.getName().equals(pIntent.getAction())) {
+			Log.d("obd", "Endpoint delivered");
+			return apiEndpoint;
+		}
+		Log.d("obd", "Unable to deliver endpoint");
+		return null;
+	}
+
+	public static ExtendedSimulationEngine getInstance() {
+		return _onlyInstance;
+	}
+
+	private SimulationEngineAPI.Stub apiEndpoint = new SimulationEngineAPI.Stub() {
+		@Override
+		public KoordinatesWaypoint getCurrentPosition() {
+			long startTimestamp = _startTimestamp;
+			long activeElementTimestamp = _activeElementTimestamp;
+			List<KoordinatesWaypoint> localVersion = decodePoints;
+			List<KoordinatesWaypoint> localVersionNext = decodePointsNext;
+			double length = 0;
+			int i = 0;
+			while (i < localVersion.size() - 1) {
+				double additionalLength = Math.sqrt(Math.pow((localVersion.get(i).getLatitude() - localVersion.get(i + 1).getLatitude()), 2) + Math.pow(localVersion.get(i).getLongitude() - localVersion.get(i + 1).getLongitude(), 2));
+				if (length + additionalLength > _totalLength * (activeElementTimestamp - startTimestamp) / _route.get(_activeElement).getDuration()) {
+					break;
+				}
+				length += additionalLength;
+				i++;
+			}
+			KoordinatesWaypoint from = localVersion.get(i);
+			KoordinatesWaypoint to;
+			if (i == localVersion.size() - 1) {
+				to = localVersionNext.get(0);
+			} else {
+				to = localVersion.get(i + 1);
+			}
+			double neededLength = _totalLength * (activeElementTimestamp - startTimestamp) / _route.get(_activeElement).getDuration() - length;
+			double latitude = to.getLatitude() - from.getLatitude();
+			double longitude = to.getLongitude() - from.getLongitude();
+			double pathLength = Math.sqrt(latitude * latitude + longitude * longitude);
+			double newLatitude = latitude / pathLength * neededLength;
+			double newLongitude = longitude / pathLength * neededLength;
+			KoordinatesWaypoint aim = new KoordinatesWaypoint((float)(from.getLongitude() + newLongitude), (float)(from.getLatitude() + newLatitude));
+			if (newLatitude / latitude <= 1) {
+				return aim;
+			}
+			i = 0;
+			while (i < localVersionNext.size() - 1) {
+				double additionalLength = Math.sqrt(Math.pow((localVersionNext.get(i).getLatitude() - localVersionNext.get(i + 1).getLatitude()), 2) + Math.pow(localVersionNext.get(i).getLongitude() - localVersionNext.get(i + 1).getLongitude(), 2));
+				if (length + additionalLength > _totalLength * (activeElementTimestamp - startTimestamp) / _route.get(_activeElement).getDuration()) {
+					break;
+				}
+				length += additionalLength;
+				i++;
+			}
+			from = localVersionNext.get(i);
+			if (i == localVersion.size() - 1) {
+				return localVersionNext.get(localVersionNext.size() - 1);
+			} else {
+				to = localVersionNext.get(i + 1);
+			}
+			neededLength = _totalLength * (activeElementTimestamp - startTimestamp) / _route.get(_activeElement).getDuration() - length;
+			latitude = to.getLatitude() - from.getLatitude();
+			longitude = to.getLongitude() - from.getLongitude();
+			pathLength = Math.sqrt(latitude * latitude + longitude * longitude);
+			newLatitude = latitude / pathLength * neededLength;
+			newLongitude = longitude / pathLength * neededLength;
+			aim = new KoordinatesWaypoint((float)(from.getLongitude() + newLongitude), (float)(from.getLatitude() + newLatitude));
+			return aim;
+		}
+
+		@Override
+		public int getCurrentSpeed() {
+			Log.d("obd", "Returning speed: " + _route.get(_activeElement).getSpeedLimit());
+			return _route.get(_activeElement).getSpeedLimit();
+		}
+
+		@Override
+		public void startSimulation() {
+			_activeElement = 0;
+			_startTimestamp = System.currentTimeMillis();
+			_activeElementTimestamp = _startTimestamp;
+			decodePoints = decodePoints(_route.get(_activeElement).getPoints());
+			decodePointsNext = decodePoints(_route.get((_activeElement + 1) % decodePoints.size()).getPoints());
+			calculateTotalLength();
+			_started = true;
+			_paused = false;
+		}
+
+		@Override
+		public void pauseSimulation() {
+			_paused = !_paused;
+		}
+
+		@Override
+		public void endSimulation() {
+			_startTimestamp = 0;
+			_paused = true;
+			_started = false;
+		}
+
+		@Override
+		public boolean setRoute(Route pRoute) {
+			endSimulation();
+			_route = GoogleAPIUtility.getRoute(pRoute).getSpeedDataRecords();
+			if (_route == null) {
+				return false;
+			}
+			return true;
+		}
+
+		@Override
+		public boolean isPaused() {
+			return _paused;
+		}
+
+		@Override
+		public boolean isStarted() {
+			return _started ;
+		}
+
+		@Override
+		public int getActiveElement() {
+			return _activeElement;
+		}
+
+		@Override
+		public double getValue(String pPID) {
+			if (_started) {
+				int speedLimit = getCurrentSpeedLimit();
+				OBDDataRecord records = _obdDataContainer.getRecords(speedLimit);
+				if (records != null && records.getPidData().containsKey(pPID)) {
+					return records.getPIDValue(pPID);
+				}
+			} else {
+				Log.w("obd", "You have to start the simulation before trying to read data!");
+			}
+			return -1;
+		}
+
+		@Override
+		public int getCurrentSpeedLimit() {
+			int speedLimit = -1000;
+			int currentSpeed = getCurrentSpeed();
+			for (Integer speed : _speedLimits) {
+				Log.d("engine", speed + ": " + (speedLimit - currentSpeed < 0) + "|" + (speedLimit - currentSpeed) + "/" +  (speed - currentSpeed));
+				if ((Math.abs(speedLimit - currentSpeed) > Math.abs(speed - currentSpeed) && (speed - currentSpeed) * (speedLimit - currentSpeed) >= 0) || (speedLimit - currentSpeed < 0 && speedLimit - currentSpeed < speed - currentSpeed)) {
+					speedLimit = speed;
+				}
+			}
+			return speedLimit;
+		}
+	};
+
+
+	@Override
+	public void run() {
+		long lastStart = _activeElementTimestamp;
+		long lastEnd;
+		long sleepInterval = 500;
+		while (_running) {
+			lastEnd = System.currentTimeMillis();
+			if (!_paused) {
+				while (_activeElementTimestamp - _startTimestamp >= _route.get(_activeElement).getDuration()) {
+					System.out.println("\t" + (_activeElementTimestamp - _startTimestamp));
+					_startTimestamp += _route.get(_activeElement).getDuration();
+					_activeElement++;
+					if (_activeElement >= _route.size()) {
+						_activeElement -= _route.size();
+					}
+					decodePoints = decodePointsNext;
+					decodePointsNext = decodePoints(_route.get((_activeElement + 1) % decodePoints.size()).getPoints());
+					calculateTotalLength();
+				}
+			} else {
+				_startTimestamp += lastEnd - lastStart;
+			}
+			_activeElementTimestamp += lastEnd - lastStart;
+			lastStart = lastEnd;
+			try {
+				Thread.sleep(sleepInterval);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private List<KoordinatesWaypoint> decodePoints(String encoded_points){
+		int index = 0;
+		int lat = 0;
+		int lng = 0;
+		List <KoordinatesWaypoint> koordinates = new ArrayList<KoordinatesWaypoint>();
+
+		try {
+			int shift;
+			int result;
+			while (index < encoded_points.length()) {
+				shift = 0;
+				result = 0;
+				while (true) {
+					int b = encoded_points.charAt(index++) - '?';
+					result |= ((b & 31) << shift);
+					shift += 5;
+					if (b < 32)
+						break;
+				}
+				lat += ((result & 1) != 0 ? ~(result >> 1) : result >> 1);
+
+				shift = 0;
+				result = 0;
+				while (true) {
+					int b = encoded_points.charAt(index++) - '?';
+					result |= ((b & 31) << shift);
+					shift += 5;
+					if (b < 32)
+						break;
+				}
+				lng += ((result & 1) != 0 ? ~(result >> 1) : result >> 1);
+				/* Add the new Lat/Lng to the Array. */
+				KoordinatesWaypoint waypoint = new KoordinatesWaypoint((lng / 100000f), (lat / 100000f));
+				koordinates.add(waypoint);
+			}
+			return koordinates;
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return koordinates;
+	}
+
+	private void calculateTotalLength() {
+		_totalLength = 0;
+		for (int i = 0; i < decodePoints.size() - 1; i++) {
+			_totalLength += Math.sqrt(Math.pow((decodePoints.get(i).getLatitude() - decodePoints.get(i + 1).getLatitude()), 2) + Math.pow(decodePoints.get(i).getLongitude() - decodePoints.get(i + 1).getLongitude(), 2));
+		}
+		_totalLength += Math.sqrt(Math.pow((decodePoints.get(decodePoints.size() - 1).getLatitude() - decodePointsNext.get(0).getLatitude()), 2) + Math.pow(decodePoints.get(decodePoints.size() - 1).getLongitude() - decodePointsNext.get(0).getLongitude(), 2));
+	}
+	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		_running = false;
+		Log.d("engine", "Engine stopped");
+	}
+}

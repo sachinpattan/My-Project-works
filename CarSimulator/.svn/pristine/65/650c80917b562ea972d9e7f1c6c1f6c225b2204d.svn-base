@@ -1,0 +1,66 @@
+package de.tudarmstadt.kom.carsimulator.util;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import de.tudarmstadt.kom.carsimulator.speed.SpeedData;
+import de.tudarmstadt.kom.carsimulator.speed.SpeedDataRecord;
+import de.tudarmstadt.kom.carsimulator.xml.route.Route;
+
+
+public class GoogleAPIUtility {
+
+	public static SpeedData getRoute(final Route pRoute) {
+		if (pRoute == null) {
+			return null;
+		}
+		SpeedData speedData = null;
+		speedData = new SpeedData();
+		final List<SpeedDataRecord> records = speedData.getSpeedDataRecords();
+		for (int i = 0; i < pRoute.getWaypoint().size() - 1; i++) {
+			try {
+				URL url = new URL("http://maps.googleapis.com/maps/api/directions/json?origin=" + pRoute.getWaypoint().get(i).getGoogleConformRepresentation() + "&destination=" + pRoute.getWaypoint().get(i + 1).getGoogleConformRepresentation() + "&sensor=false");
+				URLConnection connection = url.openConnection();
+				InputStream inputStream = new BufferedInputStream(connection.getInputStream());
+				StringBuffer buffer = new StringBuffer();
+				int read;
+				while ((read = inputStream.read()) != -1) {
+					buffer.append((char)read);
+				}
+				JSONObject jsonObject = new JSONObject(buffer.toString());
+				JSONObject routes = jsonObject.getJSONArray("routes").getJSONObject(0);
+				JSONObject legs = routes.getJSONArray("legs").getJSONObject(0);
+				JSONArray steps = legs.getJSONArray("steps");
+				for (int j = 0; j < steps.length(); j++) {
+					JSONObject step = steps.getJSONObject(j);
+					JSONObject duration = step.getJSONObject("duration");
+					JSONObject distance = step.getJSONObject("distance");
+					JSONObject polyline = step.getJSONObject("polyline");
+					int distanceValue = distance.getInt("value");
+					int durationValue = duration.getInt("value");
+					int speed = (int) Math.round(distanceValue / (double)durationValue * 3.6);
+					SpeedDataRecord speedDataRecord = new SpeedDataRecord(speed, durationValue * 1000, polyline.getString("points"));
+					records.add(speedDataRecord);
+				}
+				inputStream.close();
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return speedData;
+	}
+
+}

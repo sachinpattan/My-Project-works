@@ -1,0 +1,17 @@
+package de.tudarmstadt.kom.carsimulator.simulation;
+
+import de.tudarmstadt.kom.carsimulator.xml.route.KoordinatesWaypoint;
+import de.tudarmstadt.kom.carsimulator.xml.route.Route;
+
+public interface SimulationEngine {
+	KoordinatesWaypoint getCurrentPosition();
+	int getCurrentSpeed();
+	void startSimulation();
+	void pauseSimulation();
+	void endSimulation();
+	boolean setRoute(Route pRoute);
+	boolean isPaused();
+	boolean isStarted();
+	int getActiveElement();
+	
+}

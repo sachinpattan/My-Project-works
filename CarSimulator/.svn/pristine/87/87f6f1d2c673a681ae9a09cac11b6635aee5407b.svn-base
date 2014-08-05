@@ -1,0 +1,90 @@
+package de.tudarmstadt.kom.carsimulator.util;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.util.Log;
+import de.tudarmstadt.kom.carsimulator.speed.SpeedData;
+import de.tudarmstadt.kom.carsimulator.speed.SpeedDataRecord;
+import de.tudarmstadt.kom.carsimulator.xml.route.Route;
+import de.tudarmstadt.kom.carsimulator.xml.route.Waypoint;
+
+
+public class GoogleAPIUtility {
+
+	public static SpeedData getRoute(final Route pRoute) {
+		if (pRoute == null) {
+			return null;
+		}
+		Log.d("obd", "Length of the route: " + pRoute.getWaypoint().size());
+		SpeedData speedData = null;
+		speedData = new SpeedData();
+		final List<SpeedDataRecord> records = speedData.getSpeedDataRecords();
+		for (int i = 0; i < pRoute.getWaypoint().size() - 1; i++) {
+			Waypoint from = pRoute.getWaypoint().get(i);
+			Waypoint to = pRoute.getWaypoint().get(i + 1);
+			if (!readRoute(records, from, to)) {
+				return null;
+			}
+		}
+		for (int i = pRoute.getWaypoint().size() - 1; i >= 1 ; i--) {
+			Waypoint from = pRoute.getWaypoint().get(i);
+			Waypoint to = pRoute.getWaypoint().get(i - 1);
+			if (!readRoute(records, from, to)) {
+				return null;
+			}
+		}
+
+		return speedData;
+	}
+
+	private static boolean readRoute(final List<SpeedDataRecord> records,
+			Waypoint from, Waypoint to) {
+		try {
+			URL url = new URL("http://maps.googleapis.com/maps/api/directions/json?origin=" + from.getGoogleConformRepresentation() + "&destination=" + to.getGoogleConformRepresentation() + "&sensor=false");
+			URLConnection connection = url.openConnection();
+			InputStream inputStream = new BufferedInputStream(connection.getInputStream());
+			StringBuffer buffer = new StringBuffer();
+			int read;
+			while ((read = inputStream.read()) != -1) {
+				buffer.append((char)read);
+			}
+			JSONObject jsonObject = new JSONObject(buffer.toString());
+			if (jsonObject.getString("status").equals("OK")) {
+				JSONObject routes = jsonObject.getJSONArray("routes").getJSONObject(0);
+				JSONObject legs = routes.getJSONArray("legs").getJSONObject(0);
+				JSONArray steps = legs.getJSONArray("steps");
+				for (int j = 0; j < steps.length(); j++) {
+					JSONObject step = steps.getJSONObject(j);
+					JSONObject duration = step.getJSONObject("duration");
+					JSONObject distance = step.getJSONObject("distance");
+					JSONObject polyline = step.getJSONObject("polyline");
+					int distanceValue = distance.getInt("value");
+					int durationValue = duration.getInt("value");
+					int speed = (int) Math.round(distanceValue / (double)durationValue * 3.6);
+					SpeedDataRecord speedDataRecord = new SpeedDataRecord(speed, durationValue * 1000, polyline.getString("points"));
+					records.add(speedDataRecord);
+				}
+			} else {
+				return false;
+			}
+			inputStream.close();
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return true;
+	}
+
+}

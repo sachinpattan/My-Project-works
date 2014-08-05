@@ -1,0 +1,152 @@
+package de.tudarmstadt.kom.carsimulator;
+
+import android.app.Activity;
+import android.app.Fragment;
+import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+import de.tudarmstadt.kom.carsimulator.simulation.SimulationEngine;
+import de.tudarmstadt.kom.carsimulator.simulation.SimulationEngineFactory;
+import de.tudarmstadt.kom.obd.OBD;
+import de.tudarmstadt.kom.obd.PID;
+
+public class SensorDataActivity extends Activity {
+	private static OBD _oBD;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_sensor_data);
+		_oBD = new OBD(getApplicationContext(), true);
+		if (savedInstanceState == null) {
+			getFragmentManager().beginTransaction()
+			.add(R.id.container, new PlaceholderFragment()).commit();
+		}
+		//		if (savedInstanceState == null) {
+		//			getFragmentManager().beginTransaction()
+		//			.add(R.id.container, new PlaceholderFragment()).commit();
+		//		}
+
+	}
+
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.sensor_data, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		if (id == R.id.action_settings) {
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	/**
+	 * A placeholder fragment containing a simple view.
+	 */
+	public static class PlaceholderFragment extends Fragment {
+
+		public PlaceholderFragment() {
+		}
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			View rootView = inflater.inflate(R.layout.fragment_sensor_data,
+					container, false);
+			final TextView text = (TextView) rootView
+					.findViewById(R.id.sensorData);
+			final ImageView image = (ImageView) rootView.findViewById(R.id.speedSign);
+			text.setMovementMethod(new ScrollingMovementMethod());
+			final Activity currentActivity = this.getActivity();
+			final StringBuffer sensorData = new StringBuffer();
+			Thread thread = new Thread(new Runnable() {
+
+				@Override
+				public void run() {
+					final SimulationEngine engine = SimulationEngineFactory.getSimulationEngine();
+					int speed = -1;
+					while (true) {
+						sensorData.delete(0, sensorData.length());
+						if (!engine.isPaused()) {
+							if (speed != engine.getCurrentSpeed()) {
+								speed = engine.getCurrentSpeed();
+								for (PID pid : PID.values()) {
+									try {
+										String id = pid.getPid();
+										double value = _oBD.getValue(id);
+										sensorData.append("PID ").append(id).append(": ").append(value).append("\n");
+									} catch (Exception e) {
+									}
+								}
+								currentActivity.runOnUiThread(new Runnable() {
+									
+									@Override
+									public void run() {
+										text.setText(sensorData.toString());
+										Log.d("obd", "Current speed: " + _oBD.getCurrentSpeedLimit());
+										switch (_oBD.getCurrentSpeedLimit()) {
+										case 30:
+											image.setImageResource(R.drawable.speed30);
+											break;
+										case 50:
+											image.setImageResource(R.drawable.speed50);
+											break;
+										case 70:
+											image.setImageResource(R.drawable.speed70);
+											break;
+										case 100:
+											image.setImageResource(R.drawable.speed100);
+											break;
+										case 130:
+											image.setImageResource(R.drawable.speed130);
+											break;
+										default:
+											image.setImageResource(R.drawable.speed_kmh);
+											break;
+										}
+									}
+								});
+							}
+						} else {
+							sensorData.append("The simulation is not started yet.");
+							currentActivity.runOnUiThread(new Runnable() {
+								
+								@Override
+								public void run() {
+									text.setText(sensorData.toString());
+								}
+							});
+						}
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+
+				}
+			});
+			thread.start();
+			return rootView;
+		}
+	}
+
+
+}

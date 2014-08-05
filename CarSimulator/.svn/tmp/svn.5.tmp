@@ -1,0 +1,153 @@
+package de.tudarmstadt.kom.carsimulator;
+
+import android.app.Activity;
+import android.app.Fragment;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.Toast;
+import de.tudarmstadt.kom.carsimulator.simulation.SimulationEngine;
+import de.tudarmstadt.kom.carsimulator.simulation.SimulationEngineFactory;
+import de.tudarmstadt.kom.carsimulator.util.GoogleAPIUtility;
+import de.tudarmstadt.kom.carsimulator.xml.route.Route;
+import de.tudarmstadt.kom.carsimulator.xml.route.StringWaypoint;
+
+public class SimulationControlActivity extends Activity {
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_simulation_control);
+
+		if (savedInstanceState == null) {
+			getFragmentManager().beginTransaction()
+					.add(R.id.container, new PlaceholderFragment()).commit();
+		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.simulation_control, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		if (id == R.id.action_settings) {
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	/**
+	 * A placeholder fragment containing a simple view.
+	 */
+	public static class PlaceholderFragment extends Fragment {
+
+		public PlaceholderFragment() {
+		}
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			View rootView = inflater.inflate(
+					R.layout.fragment_simulation_control, container, false);
+			return rootView;
+		}
+	}
+
+	public void simulate(View view) {
+
+		if (!isNetworkAvailable()) {
+			Toast.makeText(
+					this,
+					"There is no internet connection ! \nThis app needs internet connection. ",
+					Toast.LENGTH_SHORT).show();
+			return;
+		}
+		final Activity currentActivity = this;
+		final SimulationEngine simulationEngine = SimulationEngineFactory
+				.getSimulationEngine();
+		final Route route = new Route();
+		EditText fromEditText = (EditText) findViewById(R.id.from);
+		EditText toEditText = (EditText) findViewById(R.id.to);
+		String fromText = fromEditText.getText().toString();
+		String toText = toEditText.getText().toString();
+
+		if (fromText.isEmpty() || toText.isEmpty()) {
+			Toast.makeText(this, " Please enter valid From and To Addresses ",
+					Toast.LENGTH_SHORT).show();
+			return;
+
+		}
+
+		route.getWaypoint().add(new StringWaypoint(fromText));
+		route.getWaypoint().add(new StringWaypoint(toText));
+		try {
+			GoogleAPIUtility.getRoute(route);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		final Thread thread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				if (!simulationEngine.setRoute(route)) {
+					currentActivity.runOnUiThread(new Runnable() {
+
+						@Override
+						public void run() {
+							Toast.makeText(
+									currentActivity,
+									" Please enter valid From and To Addresses ",
+									Toast.LENGTH_SHORT).show();
+						}
+					});
+					return;
+				}
+				simulationEngine.startSimulation();
+				currentActivity.runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+						Toast.makeText(currentActivity,
+								"The app is now simulating sensor data.",
+								Toast.LENGTH_SHORT).show();
+					}
+				});
+
+			}
+		});
+		thread.start();
+	}
+
+	public void stopSimulation(View view) {
+		final SimulationEngine simulationEngine = SimulationEngineFactory
+				.getSimulationEngine();
+		simulationEngine.endSimulation();
+		Toast.makeText(this, "The app has stopped simulating! ",
+				Toast.LENGTH_SHORT).show();
+	}
+
+	private boolean isNetworkAvailable() {
+		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetworkInfo = connectivityManager
+				.getActiveNetworkInfo();
+		return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+	}
+
+}
